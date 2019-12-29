@@ -100,8 +100,8 @@ class CarController {
          *   Update the first line as part of the above implementing.
          */
         car.setId(id);
-       // Resource<Car> resource = assembler.toResource(carService.save(car));
-        car = carService.save(car);
+        Car savedCar = carService.save(car);
+        Resource<Car> resource = assembler.toResource(savedCar);
         return ResponseEntity.ok(car);
     }
 
