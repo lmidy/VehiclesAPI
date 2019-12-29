@@ -4,9 +4,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -98,16 +96,14 @@ public class CarControllerTest {
          *   below (the vehicle will be the first in the list).
          */
 
-        Car car = getCar();
-        car.setId(1L);
         mvc.perform(get(new URI("/cars"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$._embedded.carList", hasSize(1)))
-                .andExpect(jsonPath("$._embedded.carList[0].id", is(car.getId().intValue())))
-                .andExpect(jsonPath("$._embedded.carList[0].condition", is(String.valueOf(car.getCondition()))));
+                .andExpect(jsonPath("$._embedded.carList[0].id", is(1)))
+                .andExpect(jsonPath("$._embedded.carList[0].details.body", is("sedan")));
 
     }
 
@@ -121,14 +117,30 @@ public class CarControllerTest {
          * Add a test to check that the `get` method works by calling
          *   a vehicle by ID. This should utilize the car from `getCar()` below.
          */
-        Car car = getCar();
-        car.setId(1L);
+
         mvc.perform(get(new URI("/cars/1"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json.write(car).getJson()));
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("details.body", is("sedan")));
 
+    }
+
+    /**
+     * Tests for successful update of a car
+     * @throws Exception when car creation fails
+     */
+    @Test
+    public void updateCar() throws Exception {
+        Car car = getCar();
+        car.getDetails().setExternalColor("red");
+        mvc.perform(
+                put(new URI("/cars/1"))
+                        .content(json.write(car).getJson())
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
     }
 
     /**
@@ -146,8 +158,7 @@ public class CarControllerTest {
         mvc.perform(delete(new URI("/cars/1"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isNoContent())
-                .andExpect(content().string(""));
+                .andExpect(status().isNoContent());
     }
 
     /**

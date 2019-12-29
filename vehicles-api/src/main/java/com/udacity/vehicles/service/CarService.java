@@ -17,11 +17,11 @@ public class CarService {
 
     private final CarRepository repository;
 
-    private MapsClient mapsClient;
+    private final MapsClient mapsClient;
 
-    private PriceClient priceClient;
+    private final PriceClient priceClient;
 
-    public CarService(CarRepository repository) {
+    public CarService(CarRepository repository, MapsClient mapsClient, PriceClient priceClient) {
         /**
          * Add the Maps and Pricing Web Clients you create
          *   in `VehiclesApiApplication` as arguments and set them here.
@@ -64,7 +64,7 @@ public class CarService {
          *   the pricing service each time to get the price.
          */
 
-        car.setPrice(priceClient.getPrice(id));
+        car.setPrice(priceClient.getPrice(car.getId()));
 
         /**
          * Use the Maps Web client you create in `VehiclesApiApplication`
